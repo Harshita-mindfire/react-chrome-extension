@@ -21,9 +21,11 @@
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "watch": "webpack -w --config webpack.config.js"
+    "watch": "webpack -w --config webpack.config.js",
+    "start": "webpack serve --mode development"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.246",
     "ts-loader": "^9.4.2",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1"
