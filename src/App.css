@@ -4,7 +4,8 @@
 }
 
 .container {
-  width: 15rem;
-  height: 15rem;
+  width: 40rem;
+  height: 20rem;
+  overflow: scroll;
   background-color: white;
 }
