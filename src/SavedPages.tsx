@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import SavedPageRow from './SavedPageRow';
 import { Button, SavedPagesList, Container, Label, Header, ActionButton } from './styles'
+import { SavedPage } from './App';
 
 interface SavedPagesProps {
-  savedPages: Array<{ pageName: string; pageUrl: string,id:string }>;
+  savedPages: Array<SavedPage>;
   savePage: () => void;
   candidateEmail: string;
   changeCandidate: () => void;
-  deletePage:(id:string)=>void
+  deletePage: (id: string) => void
 }
-const SavedPages: React.FC<SavedPagesProps> = ({ savedPages, deletePage, candidateEmail, changeCandidate,savePage }) => {
+const SavedPages: React.FC<SavedPagesProps> = ({ savedPages, deletePage, candidateEmail, changeCandidate, savePage }) => {
 
   const handleOpen = (nameToOpen: any) => {
     // Implement logic to open the saved page with the given name
@@ -22,7 +23,7 @@ const SavedPages: React.FC<SavedPagesProps> = ({ savedPages, deletePage, candida
     <Container style={{ height: '100%', padding: '20px' }}>
       <Header style={{ justifyContent: 'center' }}>
         <Label>{`Adding pages for ${candidateEmail}`}</Label>
-        <ActionButton onClick={() => changeCandidate()} style={{ width: 'auto',marginBottom:'16px' }}>
+        <ActionButton onClick={() => changeCandidate()} style={{ width: 'auto', marginBottom: '16px' }}>
           change user
         </ActionButton>
       </Header>
@@ -33,6 +34,7 @@ const SavedPages: React.FC<SavedPagesProps> = ({ savedPages, deletePage, candida
             key={index}
             name={page.pageName}
             url={page.pageUrl}
+            htmlUrl={page.viewUrl}
             onDelete={() => deletePage(page.id)}
             onOpen={handleOpen}
           />

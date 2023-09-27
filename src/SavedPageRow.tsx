@@ -1,9 +1,12 @@
 import { RowContainer, Column, ActionButton } from "./styles";
 
 
-const SavedPageRow = ({ name, url, onDelete, onOpen }: any) => {
+const SavedPageRow = ({ name, url, onDelete, onOpen, htmlUrl }: any) => {
   const oepnUrl = () => {
-    chrome.tabs.create({ url });
+    chrome.tabs.create({ url: url });
+  }
+  const oepnHTML = () => {
+    chrome.tabs.create({ url: htmlUrl });
   }
   return (
     <RowContainer>
@@ -17,7 +20,7 @@ const SavedPageRow = ({ name, url, onDelete, onOpen }: any) => {
         <ActionButton onClick={() => oepnUrl()}>Open URL</ActionButton>
       </Column>
       <Column >
-        <ActionButton onClick={() => onOpen(name)}>Open HTML</ActionButton>
+        <ActionButton onClick={() => oepnHTML()}>Open HTML</ActionButton>
       </Column>
       <Column>
         <ActionButton onClick={() => onDelete()}>Delete</ActionButton>

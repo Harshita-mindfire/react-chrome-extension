@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// const BASE_URL = 'https://p6jx3vgupd.us-east-1.awsapprunner.com/extension'
-const BASE_URL = 'http://localhost:3000/extension'
+const BASE_URL = 'https://cn57vjkqst.us-east-1.awsapprunner.com/extension'
+// const BASE_URL = 'http://localhost:3000/extension'
 
 
 export const getCandidateId = async (email: string) => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import SetUser from './SetUser';
 import SavedPages from './SavedPages';
@@ -6,10 +6,11 @@ import SearchByEmail from './SearchByEmail';
 import { createUserPage, getCandidateId, getCandidatePages, uploadHTMLToS3, deletePage } from './network';
 import { Spinner } from './styles';
 
-interface SavedPage {
+export interface SavedPage {
   pageName: string;
   pageUrl: string;
-  id: string
+  id: string;
+  viewUrl: string;
 }
 function App() {
 
@@ -19,12 +20,43 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [savedPages, setSavedPages] = useState<Array<SavedPage>>([]);
   const recruiterEmails = ['mariam@nodogoro.com'];
+  useEffect(() => {
+    chrome.downloads.onChanged.addListener((downloadDelta) => {
+      if (downloadDelta.state && downloadDelta.state.current === 'complete') {
+        // The PDF download is complete, you can now upload it to S3.
+        console.log(downloadDelta, '!!!!!')
+      }
+    });
+    let loggedInEmail = localStorage.getItem('loggedin-user')
+    if (loggedInEmail)
+      setLoggedInUser(loggedInEmail)
+    const candId = localStorage.getItem('candidate-id');
+    const candEmail = localStorage.getItem('candidate-email');
+    const candPages = localStorage.getItem('candidate-pages');
+    if (candId && candEmail && candPages) {
+      setCandidateEmail(candEmail);
+      setCandidateId(candId);
+      setSavedPages(JSON.parse(candPages))
+    }
 
+  }, [])
   const logout = () => {
+    localStorage.clear()
     setLoggedInUser('')
     setCandidateEmail('')
   }
 
+  const handleLogin = (email: string) => {
+    // console.log('saving')
+    // chrome.downloads.download({
+    //   url: 'https://drive.google.com/file/d/1uXAoZzuG-xjrtmdxdkfrpYxThaf81i3m/view?usp=sharing',
+    //   filename: 'downloads/downloaded.pdf',
+    //   saveAs: false
+    // });
+    // https://drive.google.com/file/d/1uXAoZzuG-xjrtmdxdkfrpYxThaf81i3m/view?usp=sharing
+    localStorage.setItem('loggedin-user', email)
+    setLoggedInUser(email)
+  }
   const getHtmlContent = () => {
     return new Promise((resolve, reject) => {
       if (chrome?.tabs) {
@@ -64,6 +96,9 @@ function App() {
         setSavedPages(newPages)
         setCandidateEmail(email)
         setCandidateId(id)
+        localStorage.setItem('candidate-id', id)
+        localStorage.setItem('candidate-email', email)
+        localStorage.setItem('candidate-pages', JSON.stringify(newPages))
       }
       else {
         alert('user does not exist')
@@ -88,6 +123,8 @@ function App() {
       await uploadHTMLToS3(html, preSignedUrl)
       const newPages = await getCandidatePages(candidateId);
       setSavedPages(newPages)
+      localStorage.setItem('candidate-pages', JSON.stringify(newPages))
+
       setLoading(false);
 
     }
@@ -102,6 +139,7 @@ function App() {
       await deletePage(candidateId, pageId)
       const newPages = await getCandidatePages(candidateId);
       setSavedPages(newPages)
+      localStorage.setItem('candidate-pages', JSON.stringify(newPages))
       setLoading(false)
     }
     catch (err) {
@@ -111,7 +149,7 @@ function App() {
   }
   const renderView = () => {
     if (!loggedInUser)
-      return <SetUser recruiterEmails={recruiterEmails} switchState={(val: string) => setLoggedInUser(val)} />;
+      return <SetUser recruiterEmails={recruiterEmails} switchState={(val: string) => handleLogin(val)} />;
     else
       if (!candidateEmail)
         return <SearchByEmail
