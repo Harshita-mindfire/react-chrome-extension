@@ -1,62 +1,28 @@
-import React from 'react';
-import styled from 'styled-components';
+import { useState } from "react";
+import { Container, Label, EmailDropdown, Button } from "./styles";
 
-const View1Container = styled.div`
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-`;
 
-const SelectLabel = styled.label`
-  font-size: 18px;
-  margin-bottom: 16px;
-`;
 
-const EmailDropdown = styled.select`
-  height: 43px;
-  border: 1px solid #000;
-  border-radius: 6px;
-  padding: 0 32px;
-  font-size: 16px;
-  margin-bottom: 8px;
-`;
+interface SavedPagesProps {
+  recruiterEmails: Array<string>;
+  switchState: (name: string) => void;
+}
+const SetUser: React.FC<SavedPagesProps> = ({ switchState, recruiterEmails }: any) => {
+  const [userEmail, setUserEmail] = useState(recruiterEmails[0])
 
-const ConfirmButton = styled.button`
-  width: auto;
-  height: 43px;
-  border: 1px solid #000;
-  border-radius: 6px;
-  padding: 0;
-  margin: 0;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #44969C;
-  min-width: 30%
-`;
-
-const SetUser = ({ switchState }: any) => {
-  const recruiterEmails = [
-    'recruiter1@example.com',
-    'recruiter2@example.com',
-    'recruiter3@example.com',
-    // Add more email options as needed
-  ];
 
   return (
-    <View1Container>
-      <SelectLabel>Select the Recruiter using this Chrome Extension</SelectLabel>
-      <EmailDropdown>
-        {recruiterEmails.map((email, index) => (
+    <Container>
+      <Label>Select the Recruiter using this Chrome Extension</Label>
+      <EmailDropdown defaultValue={recruiterEmails[0]} onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setUserEmail(event.target.value)}>
+        {recruiterEmails.map((email: string, index: number) => (
           <option key={index} value={email}>
             {email}
           </option>
         ))}
       </EmailDropdown>
-      <ConfirmButton onClick={switchState}>Confirm</ConfirmButton>
-    </View1Container>
+      <Button onClick={() => switchState(userEmail)}>Confirm</Button>
+    </Container>
   );
 };
 

@@ -1,41 +1,26 @@
-import React from 'react';
-import styled from 'styled-components';
+import { RowContainer, Column, ActionButton } from "./styles";
 
-const RowContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-`;
 
-const Column = styled.div`
-  flex: 1;
-  padding: 8px;
-  text-align: center;
-`;
-
-const Button = styled.button`
-  background-color: #D9D9D9;
-  width: 100%;
-  height: 43px;
-  border: none;
-  padding: 0 32px;
-  font-size: 16px;
-  cursor: pointer;
-  background: transparent;
-  font-weight: bold;
-`;
-
-const SavedPageRow = ({ name, date, onDelete, onOpen }: any) => {
+const SavedPageRow = ({ name, url, onDelete, onOpen }: any) => {
+  const oepnUrl = () => {
+    chrome.tabs.create({ url });
+  }
   return (
     <RowContainer>
-      <Column >{name}</Column>
-      <Column>{date}</Column>
+      <Column style={{ flex: 2 }} >
+        <label style={{ maxWidth: '100%' }}>
+          {name}
+        </label>
+      </Column>
+      {/* <Column>{date}</Column> */}
       <Column >
-        <Button onClick={() => onOpen(name)}>Open Saved Page</Button>
+        <ActionButton onClick={() => oepnUrl()}>Open URL</ActionButton>
+      </Column>
+      <Column >
+        <ActionButton onClick={() => onOpen(name)}>Open HTML</ActionButton>
       </Column>
       <Column>
-        <Button onClick={() => onDelete(name)}>Delete</Button>
+        <ActionButton onClick={() => onDelete()}>Delete</ActionButton>
       </Column>
     </RowContainer>
   );

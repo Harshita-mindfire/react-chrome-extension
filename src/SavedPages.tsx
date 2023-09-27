@@ -1,76 +1,47 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import { useState } from 'react';
 import SavedPageRow from './SavedPageRow';
+import { Button, SavedPagesList, Container, Label, Header, ActionButton } from './styles'
 
-const View3Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-`;
-
-const SavedPagesList = styled.div`
-  width: 100%;
-`;
-
-const SaveCurrentPageButton = styled.button`
-  min-width: 30%;
-  width: auto;
-  height: 43px;
-  border: 1px solid #000;
-  border-radius: 6px;
-  padding: 0 32px;
-  font-size: 16px;
-  background-color: #44969C;
-  cursor: pointer;
-  margin-top: 16px;
-`;
-
-const SavedPages = () => {
-  const [savedPages, setSavedPages] = useState([
-    { name: 'Page 1', date: '2023-09-25' },
-    { name: 'Page 2', date: '2023-09-24' },
-    { name: 'Page 2', date: '2023-09-24' },
-    { name: 'Page 2', date: '2023-09-24' },
-    { name: 'Page 2', date: '2023-09-24' },
-    { name: 'Page 2', date: '2023-09-24' },
-
-    // Add more saved pages as needed
-  ]);
-
-  const handleDelete = (nameToDelete: any) => {
-    const updatedPages = savedPages.filter((page) => page.name !== nameToDelete);
-    setSavedPages(updatedPages);
-  };
+interface SavedPagesProps {
+  savedPages: Array<{ pageName: string; pageUrl: string,id:string }>;
+  savePage: () => void;
+  candidateEmail: string;
+  changeCandidate: () => void;
+  deletePage:(id:string)=>void
+}
+const SavedPages: React.FC<SavedPagesProps> = ({ savedPages, deletePage, candidateEmail, changeCandidate,savePage }) => {
 
   const handleOpen = (nameToOpen: any) => {
     // Implement logic to open the saved page with the given name
     console.log('Opening saved page:', nameToOpen);
   };
 
-  const handleSaveCurrentPage = () => {
-    // Implement logic to save the current page
-    console.log('Saving current page...');
-  };
+
 
   return (
-    <View3Container>
-      <h1>Saved Pages</h1>
+    <Container style={{ height: '100%', padding: '20px' }}>
+      <Header style={{ justifyContent: 'center' }}>
+        <Label>{`Adding pages for ${candidateEmail}`}</Label>
+        <ActionButton onClick={() => changeCandidate()} style={{ width: 'auto',marginBottom:'16px' }}>
+          change user
+        </ActionButton>
+      </Header>
+      <Label>Saved Pages</Label>
       <SavedPagesList>
         {savedPages.map((page, index) => (
           <SavedPageRow
             key={index}
-            name={page.name}
-            date={page.date}
-            onDelete={handleDelete}
+            name={page.pageName}
+            url={page.pageUrl}
+            onDelete={() => deletePage(page.id)}
             onOpen={handleOpen}
           />
         ))}
       </SavedPagesList>
-      <SaveCurrentPageButton onClick={handleSaveCurrentPage}>
+      <Button onClick={savePage}>
         Save Current Page
-      </SaveCurrentPageButton>
-    </View3Container>
+      </Button>
+    </Container>
   );
 };
 
