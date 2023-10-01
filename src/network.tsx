@@ -4,9 +4,19 @@ const BASE_URL = 'https://cn57vjkqst.us-east-1.awsapprunner.com/extension'
 // const BASE_URL = 'http://localhost:3000/extension'
 
 
-export const getCandidateId = async (email: string) => {
+export const getCandidateIdByEmail = async (email: string) => {
   try {
-    const response = await axios.get(`${BASE_URL}/${email}`)
+    const response = await axios.get(`${BASE_URL}/email/${email}`)
+    return response.data.candidateId;
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
+export const getCandidateIdByUrl = async (url: string) => {
+  try {
+    console.log(url,'url')
+    const response = await axios.post(`${BASE_URL}/url`, { url })
     return response.data.candidateId;
   }
   catch (err) {
@@ -31,7 +41,7 @@ export const deletePage = async (candidateId: string, pageId: string) => {
   }
 }
 
-export const uploadHTMLToS3 = async (html: string, url: string) => {
+export const uploadHTMLToS3 = async (html: any, url: string) => {
   try {
     await await axios.put(url, html);
   }
@@ -41,9 +51,9 @@ export const uploadHTMLToS3 = async (html: string, url: string) => {
 }
 
 
-export const createUserPage = async (id: string, savedBy: string, pageName: string, pageUrl: string) => {
+export const createUserPage = async (id: string, savedBy: string, pageName: string, pageUrl: string, extension: string) => {
   try {
-    const response = await axios.post(`${BASE_URL}/${id}/candidate-pages`, { savedBy, pageName, pageUrl })
+    const response = await axios.post(`${BASE_URL}/${id}/candidate-pages`, { savedBy, pageName, pageUrl, extension })
     return response.data;
   }
   catch (err) {

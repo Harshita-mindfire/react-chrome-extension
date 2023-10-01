@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { Button, Label, Container, EmailInput, Header, UserInfo, ActionButton } from './styles';
 
-const SearchByEmail = ({  loggedInUser, logout, handleSearchByEmail }: any) => {
+const SearchByEmail = ({  loggedInUser, logout, handleSearchByEmailOrUrl }: any) => {
   const [email, setEmail] = useState('');
 
   const handleEmailChange = (e: any) => {
@@ -21,14 +21,13 @@ const SearchByEmail = ({  loggedInUser, logout, handleSearchByEmail }: any) => {
 
       <Container>
 
-        <Label>Select Candidate by email:</Label>
+        <Label>Select Candidate by email/url:</Label>
         <EmailInput
-          type="email"
-          placeholder="Enter email"
+          placeholder="Enter email/url"
           value={email}
           onChange={handleEmailChange}
         />
-        <Button onClick={() => handleSearchByEmail(email)}>Confirm</Button>
+        <Button onClick={() => handleSearchByEmailOrUrl(email)}>Confirm</Button>
       </Container>
     </>
   );

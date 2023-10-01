@@ -3,9 +3,9 @@ import './App.css';
 import SetUser from './SetUser';
 import SavedPages from './SavedPages';
 import SearchByEmail from './SearchByEmail';
-import { createUserPage, getCandidateId, getCandidatePages, uploadHTMLToS3, deletePage } from './network';
+import { createUserPage, getCandidateIdByEmail, getCandidatePages, uploadHTMLToS3, deletePage, getCandidateIdByUrl } from './network';
 import { Spinner } from './styles';
-
+import SetContactType from './ContactType';
 export interface SavedPage {
   pageName: string;
   pageUrl: string;
@@ -20,23 +20,23 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [savedPages, setSavedPages] = useState<Array<SavedPage>>([]);
   const recruiterEmails = ['mariam@nodogoro.com'];
+  const [contactType, setContactType] = useState('')
+
   useEffect(() => {
-    chrome.downloads.onChanged.addListener((downloadDelta) => {
-      if (downloadDelta.state && downloadDelta.state.current === 'complete') {
-        // The PDF download is complete, you can now upload it to S3.
-        console.log(downloadDelta, '!!!!!')
-      }
-    });
     let loggedInEmail = localStorage.getItem('loggedin-user')
     if (loggedInEmail)
       setLoggedInUser(loggedInEmail)
     const candId = localStorage.getItem('candidate-id');
     const candEmail = localStorage.getItem('candidate-email');
-    const candPages = localStorage.getItem('candidate-pages');
-    if (candId && candEmail && candPages) {
+    const conType = localStorage.getItem('contact-type');
+
+    if (candId && candEmail && conType) {
       setCandidateEmail(candEmail);
       setCandidateId(candId);
-      setSavedPages(JSON.parse(candPages))
+      setContactType(conType);
+      (async () => {
+        await getCandidatesSavedPages(candId)
+      })()
     }
 
   }, [])
@@ -45,15 +45,12 @@ function App() {
     setLoggedInUser('')
     setCandidateEmail('')
   }
-
+  const isFileURL = (url: string) => {
+    const fileExtensions = ['.pdf', '.jpg', '.jpeg'];
+    const fileExtension = url!.split('.')!.pop()!.toLowerCase();
+    return fileExtensions.includes(`.${fileExtension}`);
+  }
   const handleLogin = (email: string) => {
-    // console.log('saving')
-    // chrome.downloads.download({
-    //   url: 'https://drive.google.com/file/d/1uXAoZzuG-xjrtmdxdkfrpYxThaf81i3m/view?usp=sharing',
-    //   filename: 'downloads/downloaded.pdf',
-    //   saveAs: false
-    // });
-    // https://drive.google.com/file/d/1uXAoZzuG-xjrtmdxdkfrpYxThaf81i3m/view?usp=sharing
     localStorage.setItem('loggedin-user', email)
     setLoggedInUser(email)
   }
@@ -65,8 +62,6 @@ function App() {
             reject('No active tabs found.');
             return;
           }
-
-
           chrome.tabs.executeScript(
             tabs[0].id!,
             { code: 'document.documentElement.outerHTML' },
@@ -86,19 +81,27 @@ function App() {
       }
     });
   };
+  const getCandidatesSavedPages = async (id: string) => {
+    setLoading(true)
+    const newPages = await getCandidatePages(id);
+    setSavedPages(newPages)
+    setLoading(false)
 
-  const handleSearchByEmail = async (email: string) => {
+  }
+  const handleSearchByEmailOrUrl = async (email: string) => {
     try {
       setLoading(true);
-      const id = await getCandidateId(email)
+      let id;
+      if (contactType === 'email')
+        id = await getCandidateIdByEmail(email)
+      else
+        id = await getCandidateIdByUrl(email)
       if (id) {
-        const newPages = await getCandidatePages(id);
-        setSavedPages(newPages)
+        await getCandidatesSavedPages(id)
         setCandidateEmail(email)
         setCandidateId(id)
         localStorage.setItem('candidate-id', id)
         localStorage.setItem('candidate-email', email)
-        localStorage.setItem('candidate-pages', JSON.stringify(newPages))
       }
       else {
         alert('user does not exist')
@@ -113,17 +116,47 @@ function App() {
   const savePage = async () => {
     try {
       setLoading(true);
-      const pageData = await getHtmlContent() as { html: string; url: string };
-      const { html, url } = pageData
-      const urlClass = new URL(url)
-      const timestamp = new Date().getTime();
-      const name = `${urlClass.hostname}-${timestamp}`
-      const resp = await createUserPage(candidateId, loggedInUser, name, url)
-      const { preSignedUrl } = resp
-      await uploadHTMLToS3(html, preSignedUrl)
-      const newPages = await getCandidatePages(candidateId);
-      setSavedPages(newPages)
-      localStorage.setItem('candidate-pages', JSON.stringify(newPages))
+
+      chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+        if (!chrome.runtime.lastError && tabs.length > 0) {
+          const currentTab = tabs[0];
+          const fileUrl = currentTab.url;
+          const timestamp = new Date().getTime();
+          if (isFileURL(fileUrl!)) {
+            console.log(fileUrl)
+            const fileExtension = fileUrl?.split('.').pop();
+            const name = `${fileExtension}-${timestamp}`
+            fetch(fileUrl!)
+              .then((response) => response.blob())
+              .then(async (blob) => {
+                const resp = await createUserPage(candidateId, candidateEmail, name, fileUrl!, fileExtension!)
+                const { preSignedUrl } = resp
+                const reader = new FileReader();
+                reader.onload = async () => {
+                  const arrayBuffer = reader.result;
+                  await uploadHTMLToS3(arrayBuffer, preSignedUrl)
+                  await getCandidatesSavedPages(candidateId)
+                };
+                reader.readAsArrayBuffer(blob);
+              })
+              .catch((error) => {
+                console.error('Fetch Error:', error);
+                // Handle the fetch error if needed
+              });
+          }
+          else {
+            const pageData = await getHtmlContent() as { html: string; url: string };
+            const { html, url } = pageData
+            const urlClass = new URL(url)
+            const name = `${urlClass.hostname}-${timestamp}`
+            const resp = await createUserPage(candidateId, loggedInUser, name, url, 'html')
+            const { preSignedUrl } = resp
+            await uploadHTMLToS3(html, preSignedUrl)
+            await getCandidatesSavedPages(candidateId)
+          }
+
+        }
+      });
 
       setLoading(false);
 
@@ -137,9 +170,7 @@ function App() {
     try {
       setLoading(true)
       await deletePage(candidateId, pageId)
-      const newPages = await getCandidatePages(candidateId);
-      setSavedPages(newPages)
-      localStorage.setItem('candidate-pages', JSON.stringify(newPages))
+      await getCandidatesSavedPages(candidateId)
       setLoading(false)
     }
     catch (err) {
@@ -147,25 +178,41 @@ function App() {
       setLoading(false)
     }
   }
+  const resetCandidate = () => {
+    setCandidateEmail('')
+    setContactType('')
+    setCandidateId('')
+    localStorage.removeItem('candidate-id')
+    localStorage.removeItem('candidate-email')
+    localStorage.removeItem('contact-type')
+
+
+  }
   const renderView = () => {
     if (!loggedInUser)
       return <SetUser recruiterEmails={recruiterEmails} switchState={(val: string) => handleLogin(val)} />;
     else
-      if (!candidateEmail)
-        return <SearchByEmail
-          logout={() => logout()}
-          loggedInUser={loggedInUser}
-          switchState={(email: string) => setCandidateEmail(email)}
-          handleSearchByEmail={(email: string) => handleSearchByEmail(email)}
-        />;
+      if (!contactType)
+        return <SetContactType setType={(val: string) => {
+          setContactType(val);
+          localStorage.setItem('contact-type', val)
+        }} />
       else
-        return <SavedPages
-          deletePage={(id: string) => handleDeletePage(id)}
-          savePage={() => savePage()}
-          changeCandidate={() => setCandidateEmail('')}
-          candidateEmail={candidateEmail}
-          savedPages={savedPages}
-        />
+        if (!candidateEmail)
+          return <SearchByEmail
+            logout={() => logout()}
+            loggedInUser={loggedInUser}
+            switchState={(email: string) => setCandidateEmail(email)}
+            handleSearchByEmailOrUrl={(email: string) => handleSearchByEmailOrUrl(email)}
+          />;
+        else
+          return <SavedPages
+            deletePage={(id: string) => handleDeletePage(id)}
+            savePage={() => savePage()}
+            changeCandidate={() => resetCandidate()}
+            candidateEmail={candidateEmail}
+            savedPages={savedPages}
+          />
   };
   return (
     <>

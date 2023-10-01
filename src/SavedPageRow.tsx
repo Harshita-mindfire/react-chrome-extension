@@ -20,7 +20,7 @@ const SavedPageRow = ({ name, url, onDelete, onOpen, htmlUrl }: any) => {
         <ActionButton onClick={() => oepnUrl()}>Open URL</ActionButton>
       </Column>
       <Column >
-        <ActionButton onClick={() => oepnHTML()}>Open HTML</ActionButton>
+        <ActionButton onClick={() => oepnHTML()}>Open File</ActionButton>
       </Column>
       <Column>
         <ActionButton onClick={() => onDelete()}>Delete</ActionButton>
