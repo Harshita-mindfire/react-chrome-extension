@@ -1,22 +1,22 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://cn57vjkqst.us-east-1.awsapprunner.com/extension'
-// const BASE_URL = 'http://localhost:3000/extension'
+// const BASE_URL = 'https://cn57vjkqst.us-east-1.awsapprunner.com/extension'
+const BASE_URL = 'http://localhost:3000/extension'
 
 
-export const getCandidateIdByEmail = async (email: string) => {
+export const getCandidateIdByEmail = async (email: string, savedBy: string) => {
   try {
-    const response = await axios.get(`${BASE_URL}/email/${email}`)
+    const response = await axios.post(`${BASE_URL}/email/${email}`, { savedBy })
     return response.data.candidateId;
   }
   catch (err) {
     console.log(err)
   }
 }
-export const getCandidateIdByUrl = async (url: string) => {
+export const getCandidateIdByUrl = async (url: string, savedBy: string) => {
   try {
-    console.log(url,'url')
-    const response = await axios.post(`${BASE_URL}/url`, { url })
+    console.log(url, 'url')
+    const response = await axios.post(`${BASE_URL}/url`, { url, savedBy })
     return response.data.candidateId;
   }
   catch (err) {

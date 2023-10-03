@@ -44,6 +44,7 @@ function App() {
     localStorage.clear()
     setLoggedInUser('')
     setCandidateEmail('')
+    setContactType('')
   }
   const isFileURL = (url: string) => {
     const fileExtensions = ['.pdf', '.jpg', '.jpeg'];
@@ -93,9 +94,9 @@ function App() {
       setLoading(true);
       let id;
       if (contactType === 'email')
-        id = await getCandidateIdByEmail(email)
+        id = await getCandidateIdByEmail(email, loggedInUser)
       else
-        id = await getCandidateIdByUrl(email)
+        id = await getCandidateIdByUrl(email, loggedInUser)
       if (id) {
         await getCandidatesSavedPages(id)
         setCandidateEmail(email)
