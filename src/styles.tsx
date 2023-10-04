@@ -99,4 +99,9 @@ export const Spinner = styled.div<SpinnerProps>`
   background-color: rgba(255, 255, 255, 0.8); /* Adjust the background color and opacity as needed */
   z-index: 999; /* Ensure it appears above other content */
 `;
-
+export const EditPageRow = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  margin-top: 5px;
+`;

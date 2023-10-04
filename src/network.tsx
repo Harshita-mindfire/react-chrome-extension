@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { Candidate } from './interfaces';
 
-// const BASE_URL = 'https://cn57vjkqst.us-east-1.awsapprunner.com/extension'
-const BASE_URL = 'http://localhost:3000/extension'
+const BASE_URL = 'https://cn57vjkqst.us-east-1.awsapprunner.com/extension'
+// const BASE_URL = 'http://localhost:3000/extension'
 
 
 export const getCandidateIdByEmail = async (email: string, savedBy: string) => {
@@ -55,6 +56,25 @@ export const createUserPage = async (id: string, savedBy: string, pageName: stri
   try {
     const response = await axios.post(`${BASE_URL}/${id}/candidate-pages`, { savedBy, pageName, pageUrl, extension })
     return response.data;
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
+
+export const getCandidateById = async (id: string) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/candidate/${id}`)
+    return response.data.candidate;
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
+export const editCandidate = async (id: string, body: Candidate) => {
+  try {
+    const response = await axios.put(`${BASE_URL}/candidate/${id}`, { ...body })
+    return response.data.candidate;
   }
   catch (err) {
     console.log(err)

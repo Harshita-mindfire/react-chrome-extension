@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { Container, Label, EmailDropdown, Button } from "./styles";
+import { SavedPagesComponentProps } from "./interfaces";
 
 
 
-interface SavedPagesProps {
-  recruiterEmails: Array<string>;
-  switchState: (name: string) => void;
-}
-const SetUser: React.FC<SavedPagesProps> = ({ switchState, recruiterEmails }: any) => {
+
+const SetUser: React.FC<SavedPagesComponentProps> = ({ switchState, recruiterEmails }: any) => {
   const [userEmail, setUserEmail] = useState(recruiterEmails[0])
 
 

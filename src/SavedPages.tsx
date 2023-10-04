@@ -1,16 +1,10 @@
 import { useState } from 'react';
 import SavedPageRow from './SavedPageRow';
 import { Button, SavedPagesList, Container, Label, Header, ActionButton } from './styles'
-import { SavedPage } from './App';
+import { SavedPagesProps } from './interfaces';
 
-interface SavedPagesProps {
-  savedPages: Array<SavedPage>;
-  savePage: () => void;
-  candidateEmail: string;
-  changeCandidate: () => void;
-  deletePage: (id: string) => void
-}
-const SavedPages: React.FC<SavedPagesProps> = ({ savedPages, deletePage, candidateEmail, changeCandidate, savePage }) => {
+
+const SavedPages: React.FC<SavedPagesProps> = ({ savedPages, deletePage, candidateEmail, changeCandidate, savePage, edit }) => {
 
   const handleOpen = (nameToOpen: any) => {
     // Implement logic to open the saved page with the given name
@@ -24,7 +18,10 @@ const SavedPages: React.FC<SavedPagesProps> = ({ savedPages, deletePage, candida
       <Header style={{ justifyContent: 'center' }}>
         <Label>{`Adding pages for ${candidateEmail}`}</Label>
         <ActionButton onClick={() => changeCandidate()} style={{ width: 'auto', marginBottom: '16px' }}>
-          change user
+          Change Candidate
+        </ActionButton>
+        <ActionButton onClick={() => edit()} style={{ width: 'auto', marginBottom: '16px', marginLeft: "10px" }}>
+          Edit Candidate
         </ActionButton>
       </Header>
       <Label>Saved Pages</Label>
