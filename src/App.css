@@ -1,11 +1,11 @@
 .App {
-    color: white;
-    text-align: center;
+  color: black;
+  text-align: center;
 }
 
 .container {
-    width: 15rem;
-    height: 15rem;
-    background-color: green;
-
+  width: 40rem;
+  height: auto;
+  overflow: scroll;
+  background-color: white;
 }

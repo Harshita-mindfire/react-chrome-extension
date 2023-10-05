@@ -1,9 +1,14 @@
 {
-    "version": "1.0.0",
-    "manifest_version": 3,
-    "name": "React Chrome Extension",
-    "action": {
-        "default_popup": "js/index.html",
-        "default_title": "React Chrome Extension"
-    }
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "name": "Nodo recruiter Extension",
+  "permissions": ["activeTab", "scripting","storage","downloads"],
+  "downloads": {
+    "save_to_filesystem": true
+  },
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "browser_action": {
+    "default_popup": "js/index.html",
+    "default_title": "Nodo recruiter Extension"
+  }
 }
