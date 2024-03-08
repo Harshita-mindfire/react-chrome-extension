@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "watch": "webpack -w --config webpack.config.js"
+    "watch": "webpack -w --config webpack.config.js",
+    "test": "react-scripts test --watchAll"
   },
   "devDependencies": {
     "ts-loader": "^9.4.2",

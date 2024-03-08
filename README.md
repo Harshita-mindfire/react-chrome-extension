@@ -14,6 +14,9 @@ bundle the extension.
 ### `npm run watch`
 bundle the extension with interactive watch mode.
 
+### `npm run test`
+launches the test runner in the interactive watch mode.
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
